@@ -69,7 +69,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 						pageSize = userPageSize;
 				}
 				catch (NumberFormatException e) {
-					log.warn("Second Argument {} could not be parsed, default value {} is used", args[1], DEFAULT_PAGE_SIZE);
+					log.warn("Second Argument {} could not be parsed, default page size {} is used", args[1], DEFAULT_PAGE_SIZE);
 				}
 			}
 
@@ -88,7 +88,6 @@ public class DeepgreenApplication implements CommandLineRunner{
 					if(!embargo.isExceeded(dateStr)) {
 						String zipUrl = notification.getZipFileUrl();
 						
-						log.info("ZipUrl: {}",zipUrl);
 						ZipUtil.getZipFromURL(zipUrl, apiKey, zipFilePath);
 						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
 			
@@ -134,7 +133,6 @@ public class DeepgreenApplication implements CommandLineRunner{
 
 						String zipUrl = notification.getZipFileUrl();
 						
-						log.info("ZipFileUrl: {}",zipUrl);
 						ZipUtil.getZipFromURL(zipUrl, apiKey, zipFilePath);
 						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
 						
@@ -184,7 +182,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 	}
 	
 	private Long getNumberOfPages(Long totalRessources, Long pageSize) {
-		log.info("Total: {}, pageSize: {}",totalRessources,pageSize);
+		log.info("Total: {}, pageSize: {}", totalRessources, pageSize);
 		return totalRessources % pageSize == 0 ? (totalRessources / pageSize) : (totalRessources / pageSize) + 1;
 	}
 

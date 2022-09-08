@@ -2,6 +2,8 @@ package de.hbznrw.deepgreen.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
 import lombok.Data;
 
 /**
@@ -11,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @Configuration
-//@PropertySource(value = "file:/etc/deepgreen/application.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "file:/etc/deepgreen/application.properties", ignoreResourceNotFound = true)
 @ConfigurationProperties(prefix = "deepgreen")
 public class DeepgreenProperties {
 	
