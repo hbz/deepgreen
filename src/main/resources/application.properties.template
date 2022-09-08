@@ -1,0 +1,29 @@
+
+# General properties
+deepgreen.tmpDirPath=/tmp/deepgreen
+deepgreen.zipFilePath=/tmp/deepgreen/zip
+
+#Deepgreen API access
+deepgreen.apiURL={URL_TO_API}
+deepgreen.notificationURL={URL_TO_GET_NOTIFICATION}
+deepgreen.apiKey={YOUR_API_KEY}
+deepgreen.apiUser={YOUR_API_USERNAME}
+deepgreen.apiPassword={YOUR_API_PASSWORD}
+
+# Development properties
+deepgreen.baseURL={API_URL_TO_DEV_SERVER}
+deepgreen.resourceURL={API_URL_TO_DEV_SERVER}/resource
+deepgreen.frlURL={API_URL_TO_DEV_SERVER}/resource/frl
+deepgreen.elasticsearchURL={API_URL_TO_DEV_SERVER}/search/frl2/_search
+attr.isDescribedBy.createdBy=39
+
+# Production properties
+#deepgreen.baseURL={API_URL_TO_PROD_SERVER}
+#deepgreen.resourceURL={API_URL_TO_PROD_SERVER}/resource
+#deepgreen.frlURL={API_URL_TO_PROD_SERVER}/resource/frl
+#deepgreen.elasticsearchURL={API_URL_TO_PROD_SERVER}/search/frl2/_search
+#attr.isDescribedBy.createdBy=322
+
+# Modifier
+attr.accessscheme={PRIVATE_OR_PUBLIC}
+attr.publishscheme={PRIVATE_OR_PUBLIC}
