@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -34,12 +35,20 @@ public class ZipUtil {
 	 */
 	public static void getZipFromURL(String url, String apiKey, String zipPath) {
 		try {
-			Files.copy(new URL(url.concat("?" + APIKEY + "="+apiKey))
-				 .openStream(), Paths.get(zipPath), StandardCopyOption.REPLACE_EXISTING);
+			Path pathToZip = Paths.get(zipPath);
+			
+			if(!Files.exists(pathToZip))
+				Files.createDirectory(pathToZip);
+			
+			Files.copy(new URL(url.concat("?" + APIKEY + "="+apiKey)).openStream(), 
+					   pathToZip, 
+					   StandardCopyOption.REPLACE_EXISTING);
+			
 		} catch (MalformedURLException e) {
 			log.error("URL has no valid format");
 		} catch (IOException e) {
 			log.error("An error occurred writing zip file to directory");
+			e.printStackTrace();
 		}
 	}
 	
@@ -51,13 +60,15 @@ public class ZipUtil {
 	 * @throws IOException if an error occurs reading/writing zip file
 	 */
 	public static void extractZip(String zipPath, String extractToPath) {
+		
 		try(ZipFile zip = new ZipFile(zipPath)) {
 			zip.extractAll(extractToPath);
-			//Files.deleteIfExists(Paths.get(zipPath));
+			
 		} catch(ZipException zipEx) {
 			log.error("An error occurred extracting zip file");
 		} catch(IOException ioEx) {
 			log.error("An error occurred reading/writing zip file");
+			ioEx.printStackTrace();
 		}
 	}
 
