@@ -29,9 +29,9 @@ public class PropertyWriter {
 	public static void writeKeyValue(String notificationId, String dateStr) {
 
 		try {
-			String pattern = "resource." + notificationId + "=" + dateStr + newLine;
-			FileUtils.write(FILE_PROP, pattern, UTF_8, true);
-
+			String pattern = "resource." + notificationId + "=" + dateStr;
+			FileUtils.write(FILE_PROP, pattern + newLine, UTF_8, true);
+ 
 		} catch (IOException e) {
 			log.info("Error occurred writing into properties file");
 		}
