@@ -143,7 +143,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 						
 						// check if embargodate exceeded
 						if(embargo.isExceeded(metaData.getDate())) {
-							log.info("EmbargoDate exceeded, notificationId will written into properties file");
+							log.info("EmbargoDate of notificationId {} exceeded, hence it is written into properties file", notification.getId());
 							PropertyWriter.writeKeyValue(notification.getId(), metaData.getDate());
 							return;
 						}
