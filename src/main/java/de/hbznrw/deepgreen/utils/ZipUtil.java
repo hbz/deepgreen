@@ -38,7 +38,7 @@ public class ZipUtil {
 			Path pathToZip = Paths.get(zipPath);
 			
 			if(!Files.exists(pathToZip))
-				Files.createDirectory(pathToZip);
+				Files.createDirectories(pathToZip);
 			
 			Files.copy(new URL(url.concat("?" + APIKEY + "="+apiKey)).openStream(), 
 					   pathToZip, 
