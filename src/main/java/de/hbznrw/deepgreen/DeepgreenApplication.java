@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static de.hbznrw.deepgreen.constants.ContentType.*;
+import static de.hbznrw.deepgreen.utils.DateUtil.*;
 
 import de.hbznrw.deepgreen.models.ArticleData;
 import de.hbznrw.deepgreen.models.Embargo;
@@ -60,6 +61,10 @@ public class DeepgreenApplication implements CommandLineRunner{
 		// i.e. args[1] = 37 (pageSize is optional, range 1-100 allowed, default 25)
 		if(args.length > 0) {
 			String date = args[0];
+			
+			if(!isValidFormat(date))
+				System.exit(1);
+
 			Long pageSize = DEFAULT_PAGE_SIZE;
 			
 			if(args.length == 2) {
