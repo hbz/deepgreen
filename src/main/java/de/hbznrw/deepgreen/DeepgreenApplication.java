@@ -131,7 +131,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 					ArticleData data = client.getNotifications(date, pageSize, currentPage);
 					List<Notification> notificationList = data.getNotifications();
 					
-					notificationList.stream().limit(10L).forEach( notification -> {
+					notificationList.stream().limit(13L).forEach( notification -> {
 
 						Metadata metaData = notification.getMetadata();
 						Embargo embargo = notification.getEmbargo();
@@ -143,7 +143,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 						
 						// check if embargodate exceeded
 						if(embargo.isExceeded(metaData.getDate())) {
-							log.info("EmbargoDate of notificationId {} exceeded, hence it is written into properties file", notification.getId());
+							log.info("EmbargoDate of notificationId: {} exceeded, written to futureEmbargos.properties", notification.getId());
 							PropertyWriter.writeKeyValue(notification.getId(), metaData.getDate());
 							return;
 						}
