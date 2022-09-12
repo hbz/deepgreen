@@ -131,7 +131,7 @@ public class DeepgreenApplication implements CommandLineRunner{
 					ArticleData data = client.getNotifications(date, pageSize, currentPage);
 					List<Notification> notificationList = data.getNotifications();
 					
-					notificationList.stream().limit(13L).forEach( notification -> {
+					notificationList.stream().limit(2L).forEach( notification -> {
 
 						Metadata metaData = notification.getMetadata();
 						Embargo embargo = notification.getEmbargo();
