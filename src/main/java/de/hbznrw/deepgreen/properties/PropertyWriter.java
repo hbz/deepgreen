@@ -30,11 +30,17 @@ public class PropertyWriter {
 		try {
 			String pattern = "resource." + notificationId + "=" + dateStr;
 			List<String> lines = FileUtils.readLines(FILE_PROP, UTF_8);
-			lines.add(pattern);
-			FileUtils.writeLines(FILE_PROP, lines, false);
+			if(!lines.contains(pattern)) {			
+				lines.add(pattern);
+				FileUtils.writeLines(FILE_PROP, lines, false);
+			}
+			else {
+				log.info("Ressource already present in futureEmbargo.properties");
+			}
  
 		} catch (IOException e) {
 			log.info("Error occurred writing into properties file");
+			e.printStackTrace();
 		}
 	}
 	
@@ -53,6 +59,7 @@ public class PropertyWriter {
 			
 		} catch (IOException e) {
 			log.info("Error occurred writing into properties file");
+			e.printStackTrace();
 		}
 		
 	}
