@@ -17,8 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PropertyWriter {
 	
-	final private static File FILE_PROP = new File("src/main/resources/futureEmbargos.properties");
-
+	private static final File FILE_PROP = new File("src/main/resources/futureEmbargos.properties");
+	private static final String newLine = System.getProperty("line.separator");
+	
 	/**
 	 * Writes the notificationId and the date from input to the specified properties file with
 	 * prefix "resource." 
@@ -28,7 +29,7 @@ public class PropertyWriter {
 	public static void writeKeyValue(String notificationId, String dateStr) {
 
 		try {
-			String pattern = "resource." + notificationId + "=" + dateStr;
+			String pattern = "resource." + notificationId + "=" + dateStr + newLine;
 			FileUtils.write(FILE_PROP, pattern, UTF_8, true);
 
 		} catch (IOException e) {
