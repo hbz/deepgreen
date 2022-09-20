@@ -1,0 +1,58 @@
+# =============================================================================
+# BLUEPRINT FOR APPLICATION PROPERTIES
+#
+# This template file is a blueprint for the construction of a 
+# application.properties file, which this application needs, when 
+# running it locally or remotely.
+# =============================================================================
+
+
+# GENERAL PROPERTIES
+# -----------------------------------------------------------------------------
+deepgreen.tmpDirPath=/tmp/deepgreen
+deepgreen.zipFilePath=/tmp/deepgreen/zip
+
+# DATABASE ACCESS
+# -----------------------------------------------------------------------------
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/deepgreen?createDatabaseIfNotExist=true
+spring.datasource.username={YOUR_DB_USERNAME}
+spring.datasource.password={YOUR_DB_PASSWORD}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# DEEPGREEN API ACCESS
+# -----------------------------------------------------------------------------
+deepgreen.apiURL={URL_TO_API}
+deepgreen.notificationURL={URL_TO_GET_NOTIFICATION}
+deepgreen.apiKey={YOUR_API_KEY}
+deepgreen.apiUser={YOUR_API_USERNAME}
+deepgreen.apiPassword={YOUR_API_PASSWORD}
+
+# DEVELOPMENT PROPERTIES (if enabled, disable production properties)
+# -----------------------------------------------------------------------------
+deepgreen.baseURL={API_URL_TO_DEV_SERVER}
+deepgreen.resourceURL={API_URL_TO_DEV_SERVER}/resource
+deepgreen.frlURL={API_URL_TO_DEV_SERVER}/resource/frl
+deepgreen.elasticsearchURL={API_URL_TO_DEV_SERVER}/search/frl2/_search
+attr.isDescribedBy.createdBy=39
+ 
+# PRODUCTION PROPERTIES (if enabled, disable development properties)
+# -----------------------------------------------------------------------------
+#deepgreen.baseURL={API_URL_TO_PROD_SERVER}
+#deepgreen.resourceURL={API_URL_TO_PROD_SERVER}/resource
+#deepgreen.frlURL={API_URL_TO_PROD_SERVER}/resource/frl
+#deepgreen.elasticsearchURL={API_URL_TO_PROD_SERVER}/search/frl2/_search
+#attr.isDescribedBy.createdBy=322
+
+# MODIFIER
+# -----------------------------------------------------------------------------
+attr.accessscheme={PRIVATE_OR_PUBLIC}
+attr.publishscheme={PRIVATE_OR_PUBLIC}
+
+# LOGGING (disabled by default)
+# -----------------------------------------------------------------------------
+#logging.path=/var/logs
+#logging.file=deepgreen-app.log
+#logging.config= location of config file (default classpath:/logback.xml for logback)
+#logging.level.*= levels for loggers, e.g. "logging.level.org.springframework=DEBUG" (TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF)
+

@@ -23,5 +23,65 @@
     "name": "deepgreen.elasticsearchURL",
     "type": "java.lang.String",
     "description": "A description for 'deepgreen.elasticsearchURL'"
+  },
+  {
+    "name": "deepgreen.apiURL",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.apiURL'"
+  },
+  {
+    "name": "deepgreen.notificationURL",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.notificationURL'"
+  },
+  {
+    "name": "deepgreen.apiPassword",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.apiPassword'"
+  },
+  {
+    "name": "deepgreen.apiUser",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.apiUser'"
+  },
+  {
+    "name": "deepgreen.apiKey",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.apiKey'"
+  },
+  {
+    "name": "attr.publishscheme",
+    "type": "java.lang.String",
+    "description": "A description for 'attr.publishscheme'"
+  },
+  {
+    "name": "deepgreen.frlURL",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.frlURL'"
+  },
+  {
+    "name": "deepgreen.resourceURL",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.resourceURL'"
+  },
+  {
+    "name": "deepgreen.baseURL",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.baseURL'"
+  },
+  {
+    "name": "attr.accessscheme",
+    "type": "java.lang.String",
+    "description": "A description for 'attr.accessscheme'"
+  },
+  {
+    "name": "deepgreen.zipFilePath",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.zipFilePath'"
+  },
+  {
+    "name": "deepgreen.tmpDirPath",
+    "type": "java.lang.String",
+    "description": "A description for 'deepgreen.tmpDirPath'"
   }
 ]}

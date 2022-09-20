@@ -1,4 +1,4 @@
-package de.hbznrw.deepgreen.utils;
+package de.hbznrw.deepgreen.helpers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -16,22 +16,23 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 /**
- * Some Zip Functions
+ * Some helpful zip Functions
  * @author Alessio Pellerito
  *
  */
 @Slf4j
 @Component
-public class ZipUtil {
+public class ZipHelper {
 	
 	/**
 	 * Gets the zip File from the specified URL authorizing with the api key and
 	 * writes it to the directory in the specified path
-	 * @param url the url to get the zip File from
-	 * @param apiKey the auhorization api key
-	 * @param zipPath the path to write to
+	 * 
+	 * @param url 			the url to get the zip File from
+	 * @param apiKey 		the auhorization api key
+	 * @param zipPath 		the path to write to
 	 * @throws MalformedURLException if the URL has no valid format
-	 * @throws IOException if an error occurs writing to the directory
+	 * @throws IOException 	if an error occurs writing to the directory
 	 */
 	public static void getZipFromURL(String url, String apiKey, String zipPath) {
 		try {
@@ -53,11 +54,12 @@ public class ZipUtil {
 	}
 	
 	/**
-	 * Extracts the File and writes the content in the specified path 
-	 * @param zipPath the path where the zip File is 
+	 * Extracts the File and writes the content in the specified path
+	 *  
+	 * @param zipPath 		the path where the zip File is 
 	 * @param extractToPath the path to write the content to
 	 * @throws ZipException if an error occurs extracting the file
-	 * @throws IOException if an error occurs reading/writing zip file
+	 * @throws IOException 	if an error occurs reading/writing zip file
 	 */
 	public static void extractZip(String zipPath, String extractToPath) {
 		

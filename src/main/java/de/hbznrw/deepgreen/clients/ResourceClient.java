@@ -1,4 +1,4 @@
-package de.hbznrw.deepgreen.service;
+package de.hbznrw.deepgreen.clients;
 
 
 import java.io.File;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,14 +18,20 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static de.hbznrw.deepgreen.constants.ContentType.ARTICLE;
+import static de.hbznrw.deepgreen.constants.ContentType.FILE;
+import static de.hbznrw.deepgreen.constants.ContentType.PDF;
+import static de.hbznrw.deepgreen.constants.ContentType.XML;
 import static de.hbznrw.deepgreen.constants.QueryParam.*;
 
+import de.hbznrw.deepgreen.helpers.FileHelper;
+import de.hbznrw.deepgreen.helpers.XmlHelper;
 import de.hbznrw.deepgreen.models.ArticleData;
+import de.hbznrw.deepgreen.models.Embargo;
+import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
 import de.hbznrw.deepgreen.models.Resource;
 import de.hbznrw.deepgreen.properties.DeepgreenProperties;
-import de.hbznrw.deepgreen.utils.FileUtil;
-import de.hbznrw.deepgreen.utils.XmlUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Alessio Pellerito
  *
  */
-@Service
+@Component
 @Slf4j
 @Data
 public class ResourceClient {
@@ -51,6 +57,8 @@ public class ResourceClient {
 	@Autowired
 	private Resource attr;
 
+	@Autowired
+	private XmlHelper xmlHelper;
 	
 	/**
 	 * 
@@ -60,7 +68,7 @@ public class ResourceClient {
 	 * @param arg first argument from console as date format yyyy-mm-dd
 	 * @return Mapped Java Class 
 	 */
-	public ArticleData getNotifications(String date, Long pageSize, Long page) {
+	public ArticleData getNotifications(String date, Integer pageSize, Integer page) {
 		return webClient.get()
 						.uri(props.getApiURL(), uriBuilder -> uriBuilder
 								.queryParam(SINCE, date)
@@ -132,7 +140,6 @@ public class ResourceClient {
 	 * @return name of the new created child Resource
 	 */
 	public String createChildResource(String type, String parentPid) {
-		
 		attr.setContentType(type);
 		attr.setParentPid(parentPid);
 
@@ -171,8 +178,7 @@ public class ResourceClient {
 	 * @param embargoDuration value as month of the embargo duration
 	 */
 	public void sendXmlToResource(File xmlFile, String nameOfRessource, int embargoDuration) {
-		
-		File clearedXmlFile = XmlUtil.removeDoctypeFromXmlFile(xmlFile);
+		File clearedXmlFile = xmlHelper.removeDoctypeFromXmlFile(xmlFile);
 		
 		if(clearedXmlFile != null) {
 			webClient.post()
@@ -184,7 +190,7 @@ public class ResourceClient {
 			         .toBodilessEntity()
 			         .block();
 			
-			FileUtil.deleteFile(xmlFile.getAbsolutePath());
+			FileHelper.deleteFile(xmlFile.getAbsolutePath());
 		}
 		else
 			log.error("File does not exist");
@@ -208,7 +214,36 @@ public class ResourceClient {
 		         .toBodilessEntity()
 		         .block();
 		
-		FileUtil.deleteFile(pdf.getAbsolutePath());
+		FileHelper.deleteFile(pdf.getAbsolutePath());
+	}
+	
+	/**
+	 * Sends the pdf and the xml file to the (child-)ressource if the ressource 
+	 * with doi does not exist yet
+	 * 
+	 * @param metaData the metadata values from the respective notification
+	 * @param embargo  the embargo values from the respective notification
+	 * @param tmpPath  the path where the files are
+	 */
+	public void sendToFRL(Metadata metaData, Embargo embargo, String tmpPath) {
+		String doi = metaData.getDoi();
+		boolean doiExists = doiExists(doi);	
+
+		if(doiExists) {
+			log.info("Resource with doi {} already exists, no upload to FRL", doi);
+			FileHelper.deleteDirContent(tmpPath);
+			return;
+		}
+		
+		if(!doiExists) {		
+			File xmlFile = FileHelper.getFileBySuffix(XML, tmpPath);
+			String mainResource = createResource(ARTICLE);
+			sendXmlToResource(xmlFile, mainResource, embargo.getDuration());
+			
+			File pdfFile = FileHelper.getFileBySuffix(PDF, tmpPath);
+			String childResource = createChildResource(FILE, mainResource);
+			sendPdfToResource(pdfFile, childResource);
+		}
 	}
 	
 	

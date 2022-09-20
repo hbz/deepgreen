@@ -17,9 +17,11 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "attr") 
 public class Resource {
 	
+	/* injecting from properties file*/
 	private String contentType;
 	private String accessScheme;
 	private String publishScheme;
+	
 	private Author isDescribedBy;
 	
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)

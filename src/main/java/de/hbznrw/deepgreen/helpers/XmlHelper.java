@@ -1,4 +1,4 @@
-package de.hbznrw.deepgreen.utils;
+package de.hbznrw.deepgreen.helpers;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +13,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -20,28 +21,32 @@ import org.xml.sax.SAXException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Some XML functions
+ * Some helpful XML functions
  * @author Alessio Pellerito
  *
  */
 @Slf4j
 @Component
-public class XmlUtil {	
+public class XmlHelper {	
 	
-	private static DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-	private static TransformerFactory transformerFactory = TransformerFactory.newInstance(); 
+	@Autowired
+	private DocumentBuilderFactory documentFactory;
+	
+	@Autowired
+	private TransformerFactory transformerFactory; 
 	
 	/**
 	 * Removes the doctype line from the specified XML File
-	 * @param xmlFile a XML file
-	 * @return the XML File without doctype line
+	 * 
+	 * @param xmlFile 	a XML file
+	 * @return 			the XML File without doctype line
 	 * @throws ParserConfigurationException if the parser do not support this feature
 	 * @throws SAXException if an error occurs with the SaxParser
 	 * @throws IOException if an error occurs parsing the file
 	 * @throws TransformerConfigurationException if an error occurs with the Transformer configuration
 	 * @throws TransformerException if an error occurs during transformation process
 	 */
-	public static File removeDoctypeFromXmlFile(File xmlFile) {
+	public File removeDoctypeFromXmlFile(File xmlFile) {
 		try {
 			
 			documentFactory.setValidating(false);

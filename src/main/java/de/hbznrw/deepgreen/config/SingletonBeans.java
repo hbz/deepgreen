@@ -1,5 +1,10 @@
 package de.hbznrw.deepgreen.config;
 
+import java.text.SimpleDateFormat;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,9 +21,14 @@ public class SingletonBeans {
 	
 	/**
 	 * 
-	 * @Bean are Singletons that can be used in the program by injecting them in 
+	 * @Bean are Singletons that can be used globally by injecting them in 
 	 * the needed class. 
 	 */
+	
+	@Bean
+    public SimpleDateFormat getSimpleDateFormat(){
+		return new SimpleDateFormat("yyyy-MM-dd");
+    }
 
 	@Bean
 	public WebClient getWebClientBuilder() {
@@ -29,5 +39,15 @@ public class SingletonBeans {
 	public ObjectMapper getObjectMapper() {
 		return new ObjectMapper();
 	}
+	 
+	@Bean 
+	public DocumentBuilderFactory getDocumentBuilderFactory() {
+		return DocumentBuilderFactory.newInstance();
+	} 
+	 
+	@Bean 
+	public TransformerFactory getTransformerFactory() {
+		return TransformerFactory.newInstance();
+	} 
 	
 }
