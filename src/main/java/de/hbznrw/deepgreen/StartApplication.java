@@ -112,12 +112,12 @@ public class StartApplication implements CommandLineRunner{
 				/* Read database for exceeded embargodates END */
 				
 				/* Step 2: Read API of deepgreen */
-				for(int page = 1; page <= 1/*numberOfPages*/; page++) {
+				for(int page = 1; page <= numberOfPages; page++) {
 					 
 					ArticleData data = client.getNotifications(date, pageSize, page);
 					List<Notification> notificationList = data.getNotifications();
 					
-					notificationList.stream().limit(10L).forEach( notification -> {
+					notificationList.stream().forEach( notification -> {
 
 						Metadata metaData = notification.getMetadata();
 						Embargo embargo = notification.getEmbargo();
