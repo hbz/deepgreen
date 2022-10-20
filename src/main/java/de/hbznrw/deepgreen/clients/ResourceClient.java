@@ -110,9 +110,8 @@ public class ResourceClient {
     	
 		try {
 			String bodyJson = "{ \"query\":{\"bool\":{\"must\":{\"wildcard\":{\"doi\":\"" + doiValue + "\"}}}} }";
-			log.info("bodyJson: {}", bodyJson);
 			JsonNode requestNode = mapper.readTree(bodyJson);
-			log.info("ElasticSearchURL: {}",props.getElasticsearchURL());
+
 			JsonNode node = webClient.post()
 									 .uri(props.getElasticsearchURL())
 									 .contentType(MediaType.APPLICATION_JSON)
@@ -227,7 +226,6 @@ public class ResourceClient {
 	 */
 	public void sendToFRL(Metadata metaData, Embargo embargo, String tmpPath) {
 		String doi = metaData.getDoi();
-		log.info("metaData.getDoi: {}", doi);
 		boolean doiExists = doiExists(doi);	
 
 		if(doiExists) {
