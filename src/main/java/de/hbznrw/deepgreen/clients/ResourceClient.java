@@ -31,6 +31,7 @@ import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
 import de.hbznrw.deepgreen.models.Resource;
 import de.hbznrw.deepgreen.properties.DeepgreenProperties;
+import de.hbznrw.deepgreen.properties.ServerProperties;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +52,10 @@ public class ResourceClient {
 	private ObjectMapper mapper;
 	
 	@Autowired
-	private DeepgreenProperties props;
+	private DeepgreenProperties prop;
+	
+	@Autowired
+	private ServerProperties server;
 	
 	@Autowired
 	private Resource attr;
@@ -69,7 +73,7 @@ public class ResourceClient {
 	 */
 	public ArticleData getNotifications(String date, Integer pageSize, Integer page) {
 		return webClient.get()
-						.uri(props.getApiURL(), uriBuilder -> uriBuilder
+						.uri(prop.getApiURL(), uriBuilder -> uriBuilder
 								.queryParam(SINCE, date)
 								.queryParamIfPresent(PAGESIZE, Optional.ofNullable(pageSize))
 								.queryParamIfPresent(PAGE, Optional.ofNullable(page))
@@ -89,8 +93,8 @@ public class ResourceClient {
 	 */
 	public Notification getNotification(String notificationId) {
 		return webClient.get()
-						.uri(props.getNotificationURL() + "/" + notificationId, uriBuilder -> uriBuilder
-								.queryParam(APIKEY, props.getApiKey())
+						.uri(prop.getNotificationURL() + "/" + notificationId, uriBuilder -> uriBuilder
+								.queryParam(APIKEY, prop.getApiKey())
 								.build() )
 						.retrieve()
 						.bodyToMono(Notification.class)
@@ -113,7 +117,7 @@ public class ResourceClient {
 			JsonNode requestNode = mapper.readTree(bodyJson);
 
 			JsonNode node = webClient.post()
-									 .uri(props.getElasticsearchURL())
+									 .uri(server.getElasticsearchURL())
 									 .contentType(MediaType.APPLICATION_JSON)
 									 .bodyValue(requestNode)
 									 .retrieve()
@@ -143,9 +147,9 @@ public class ResourceClient {
 		attr.setParentPid(parentPid);
 
 		JsonNode node = webClient.post() 
-								 .uri(props.getFrlURL())
+								 .uri(server.getFrlURL())
 								 .contentType(MediaType.APPLICATION_JSON)
-								 .headers(h -> h.setBasicAuth(props.getApiUser(), props.getApiPassword()))
+								 .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
 								 .bodyValue(attr)
 								 .retrieve()
 				                 .bodyToMono(JsonNode.class)   
@@ -181,9 +185,9 @@ public class ResourceClient {
 		
 		if(clearedXmlFile != null) {
 			webClient.post()
-					 .uri(String.format(props.getResourceURL() + "/%s/DeepGreen?" + EMBARGODURATION + "=%d", nameOfRessource, embargoDuration))
+					 .uri(String.format(server.getResourceURL() + "/%s/DeepGreen?" + EMBARGODURATION + "=%d", nameOfRessource, embargoDuration))
 			         .contentType(MediaType.APPLICATION_XML)
-			         .headers(h -> h.setBasicAuth(props.getApiUser(), props.getApiPassword()))
+			         .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
 			         .body(BodyInserters.fromResource(new FileSystemResource(clearedXmlFile)))
 			         .retrieve()
 			         .toBodilessEntity()
@@ -206,8 +210,8 @@ public class ResourceClient {
 		bodyBuilder.part("data", new FileSystemResource(pdf));
 		bodyBuilder.part("type", MediaType.APPLICATION_PDF);
 		webClient.put()
-		         .uri(String.format(props.getResourceURL() + "/%s/data", nameOfResource))
-		         .headers(h -> h.setBasicAuth(props.getApiUser(), props.getApiPassword()))
+		         .uri(String.format(server.getResourceURL() + "/%s/data", nameOfResource))
+		         .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
 		         .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
 		         .retrieve()
 		         .toBodilessEntity()
