@@ -22,12 +22,5 @@ public class DeepgreenProperties {
 	private String apiURL;
 	private String notificationURL;
 	private String apiKey;
-	private String apiUser;
-	private String apiPassword;
-    
-	private String baseURL;
-	private String frlURL;
-	private String elasticsearchURL;
-	private String resourceURL;
 
 }
