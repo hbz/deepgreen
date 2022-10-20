@@ -2,7 +2,6 @@ package de.hbznrw.deepgreen.clients;
 
 
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
@@ -108,10 +107,11 @@ public class ResourceClient {
 	 * @throws URISyntaxException if an error occurs parsing the URI
 	 */
 	public boolean doiExists(String doiValue) {
+    	
 		try {
-	    	String bodyJson = "{ \"query\":{\"bool\":{\"must\":{\"wildcard\":{\"article.publisherVersion.@id\":\"" + new URI("https://doi.org/" + doiValue) + "\"}}}} }";
-	    	JsonNode requestNode = mapper.readTree(bodyJson);
-	    	
+			String bodyJson = "{ \"query\":{\"bool\":{\"must\":{\"wildcard\":{\"doi\":\"" + doiValue + "\"}}}} }";
+			JsonNode requestNode = mapper.readTree(bodyJson);
+		
 			JsonNode node = webClient.post()
 									 .uri(props.getElasticsearchURL())
 									 .contentType(MediaType.APPLICATION_JSON)
@@ -125,10 +125,9 @@ public class ResourceClient {
 			log.error("Error mapping String to JsonNode");
 		} catch (JsonProcessingException e) {
 			log.error("Error while parsing or generating Json content");
-		} catch (URISyntaxException e) {
-			log.error("String could not be parsed to URI");
-		} 
+		}
 		return false;
+		
 	}
 	
 	/**
