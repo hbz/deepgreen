@@ -25,23 +25,25 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 deepgreen.apiURL={URL_TO_API}
 deepgreen.notificationURL={URL_TO_GET_NOTIFICATION}
 deepgreen.apiKey={YOUR_API_KEY}
-deepgreen.apiUser={YOUR_API_USERNAME}
-deepgreen.apiPassword={YOUR_API_PASSWORD}
 
 # DEVELOPMENT PROPERTIES (for dev server)
 # -----------------------------------------------------------------------------
-deepgreen.baseURL={API_URL_TO_DEV_SERVER}
-deepgreen.resourceURL={API_URL_TO_DEV_SERVER}/resource
-deepgreen.frlURL={API_URL_TO_DEV_SERVER}/resource/frl
-deepgreen.elasticsearchURL={API_URL_TO_DEV_SERVER}/search/frl2/_search
+server.baseURL={API_URL_TO_DEV_SERVER}
+server.resourceURL=${server.baseURL}/resource
+server.frlURL=${server.resourceURL}/frl
+server.elasticsearchURL=${server.baseURL}/search/frl2/_search
+server.apiUser={YOUR_API_USERNAME}
+server.apiPassword={YOUR_API_PASSWORD}
 attr.isDescribedBy.createdBy=39
  
 # PRODUCTION PROPERTIES (for prod server)
 # -----------------------------------------------------------------------------
-deepgreen.baseURL={API_URL_TO_PROD_SERVER}
-deepgreen.resourceURL={API_URL_TO_PROD_SERVER}/resource
-deepgreen.frlURL={API_URL_TO_PROD_SERVER}/resource/frl
-deepgreen.elasticsearchURL={API_URL_TO_PROD_SERVER}/search/frl2/_search
+server.baseURL={API_URL_TO_PROD_SERVER}
+server.resourceURL=${server.baseURL}/resource
+server.frlURL=${server.resourceURL}/frl
+server.elasticsearchURL=${server.baseURL}/search/frl2/_search
+server.apiUser={YOUR_API_USERNAME}
+server.apiPassword={YOUR_API_PASSWORD}
 attr.isDescribedBy.createdBy=322
 
 # MODIFIER
