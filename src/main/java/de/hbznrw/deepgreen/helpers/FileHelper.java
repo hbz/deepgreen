@@ -56,20 +56,6 @@ public class FileHelper {
 	}
 	
 	/**
-	 * Deletes the whole Content of the directory on the specified path
-	 * 
-	 * @param path the path to the directory
-	 * @throws IOException in case cleaning is not successful
-	 */
-	public static void deleteDirContent(String path) {
-		try {
-			FileUtils.cleanDirectory(new File(path));
-		} catch (IOException e) {
-			log.error("Error occurred deleting contents of tmp file");
-		}
-	}
-	
-	/**
 	 * Removes the extension/suffix from the specified file
 	 * 
 	 * @param file a file
@@ -78,5 +64,14 @@ public class FileHelper {
 	public static String getNameWithoutSuffix(File file) {
 		return FilenameUtils.removeExtension(file.getName());
 	} 
+	
+	
+	public static void moveFileToPath(File file, String path) {
+		try {
+			FileUtils.moveFileToDirectory(file, new File(path), true);
+		} catch (IOException e) {
+			log.error("Error occurred moving file to specific path");
+		}
+	}
 
 }
