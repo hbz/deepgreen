@@ -26,6 +26,11 @@ public class QueryParam {
 	 * A String equivalent of the query parameter embargo_duration.
 	 */
 	public static final String EMBARGODURATION = "embargo_duration";
+	
+	/**
+	 * A String equivalent of the query parameter embargo_duration.
+	 */
+	public static final String DEEPGREENID = "deepgreen_id";
 
 	/**
 	 * A String equivalent of the query parameter embargo_duration.
