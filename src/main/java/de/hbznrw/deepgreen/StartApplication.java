@@ -104,7 +104,7 @@ public class StartApplication implements CommandLineRunner{
 						ZipHelper.extractZip(zipFilePath, tmpDirPath);						
 			
 						// if doi does not exist, send xml and pdf to frl
-						client.sendToFRL(metaData, embargo, tmpDirPath);
+						client.sendToFRL(metaData, embargo, notification, tmpDirPath);
 						
 						repo.deleteById(entity.getNotificationId());
 					}
@@ -138,7 +138,7 @@ public class StartApplication implements CommandLineRunner{
 						}
 						
 						// if doi does not exist, send xml and pdf to frl
-						client.sendToFRL(metaData, embargo, tmpDirPath);
+						client.sendToFRL(metaData, embargo, notification, tmpDirPath);
 					});
 				}
 				/* Read API of deepgreen END */	
