@@ -2,7 +2,6 @@ package de.hbznrw.deepgreen.clients;
 
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,10 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static de.hbznrw.deepgreen.constants.ContentType.ARTICLE;
 import static de.hbznrw.deepgreen.constants.ContentType.FILE;
@@ -106,32 +105,48 @@ public class ResourceClient {
 	 * 
 	 * @param doiValue
 	 * @return true if the doi already exists, false otherwise
-	 * @throws JsonMappingException if an error occurs mapping String to JsonNode
-	 * @throws JsonProcessingException if an error occurs parsing Json content
-	 * @throws URISyntaxException if an error occurs parsing the URI
 	 */
 	public boolean doiExists(String doiValue) {
     	
-		try {
-			String bodyJson = "{ \"query\":{\"bool\":{\"must\":{\"wildcard\":{\"doi\":\"" + doiValue + "\"}}}} }";
-			JsonNode requestNode = mapper.readTree(bodyJson);
-
-			JsonNode node = webClient.post()
-									 .uri(server.getElasticsearchURL())
-									 .contentType(MediaType.APPLICATION_JSON)
-									 .bodyValue(requestNode)
-									 .retrieve()
-					                 .bodyToMono(JsonNode.class)   
-					                 .block();
-
-			return node.at("/hits/total").asInt() > 0;
-		} catch (JsonMappingException e) {
-			log.error("Error mapping String to JsonNode");
-		} catch (JsonProcessingException e) {
-			log.error("Error while parsing or generating Json content");
-		}
-		return false;
+		// *** Query Requestbody ***
+		// "query":{"bool": {"should": [
+		// {"term": {"@id": "frl:6435877"}},
+		// {"term": {"publisherVersion.@id": "https://doi.org/10.1024/0300-9831/a000643"}}]}}}
+			
+		ObjectNode doiNode = mapper.createObjectNode();
+		doiNode.put("doi", doiValue);
 		
+		ObjectNode publisherVersionNode = mapper.createObjectNode();
+		publisherVersionNode.put("publisherVersion.@id", "https://doi.org/" + doiValue);
+		
+		ObjectNode term1Node = mapper.createObjectNode();
+		term1Node.set("term", doiNode);
+		
+		ObjectNode term2Node = mapper.createObjectNode();
+		term2Node.set("term", publisherVersionNode);
+		
+		ArrayNode shouldArray = mapper.createArrayNode();
+		shouldArray.add(term1Node);
+		shouldArray.add(term2Node);
+		
+		ObjectNode boolNode = mapper.createObjectNode();
+		boolNode.set("should", shouldArray);
+		
+		ObjectNode queryNode = mapper.createObjectNode();
+		queryNode.set("bool", boolNode);
+		
+		ObjectNode rootNode = mapper.createObjectNode();
+		rootNode.set("query", queryNode);
+
+		JsonNode node = webClient.post()
+								 .uri(server.getElasticsearchURL())
+								 .contentType(MediaType.APPLICATION_JSON)
+								 .bodyValue(rootNode)
+								 .retrieve()
+				                 .bodyToMono(JsonNode.class)   
+				                 .block();
+
+		return node.at("/hits/total").asInt() > 0;
 	}
 	
 	/**
@@ -180,12 +195,12 @@ public class ResourceClient {
 	 * @param nameOfRessource the name of the frl ressource, i.e. frl:640838
 	 * @param embargoDuration value as month of the embargo duration
 	 */
-	public void sendXmlToResource(File xmlFile, String nameOfRessource, int embargoDuration) {
+	public void sendXmlToResource(File xmlFile, String nameOfRessource, int embargoDuration, String deepgreenId) {
 		File clearedXmlFile = xmlHelper.removeDoctypeFromXmlFile(xmlFile);
 		
 		if(clearedXmlFile != null) {
 			webClient.post()
-					 .uri(String.format(server.getResourceURL() + "/%s/DeepGreen?" + EMBARGODURATION + "=%d", nameOfRessource, embargoDuration))
+					 .uri(String.format(server.getResourceURL() + "/%s/DeepGreen?" + EMBARGODURATION + "=%d&" + DEEPGREENID + "=%s", nameOfRessource, embargoDuration, deepgreenId))
 			         .contentType(MediaType.APPLICATION_XML)
 			         .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
 			         .body(BodyInserters.fromResource(new FileSystemResource(clearedXmlFile)))
@@ -228,7 +243,7 @@ public class ResourceClient {
 	 * @param embargo  the embargo values from the respective notification
 	 * @param tmpPath  the path where the files are
 	 */
-	public void sendToFRL(Metadata metaData, Embargo embargo, String tmpPath) {
+	public void sendToFRL(Metadata metaData, Embargo embargo, Notification notification ,String tmpPath) {
 		String doi = metaData.getDoi();
 		boolean doiExists = doiExists(doi);	
 
@@ -241,7 +256,7 @@ public class ResourceClient {
 		if(!doiExists) {		
 			File xmlFile = FileHelper.getFileBySuffix(XML, tmpPath);
 			String mainResource = createResource(ARTICLE);
-			sendXmlToResource(xmlFile, mainResource, embargo.getDuration());
+			sendXmlToResource(xmlFile, mainResource, embargo.getDuration(), notification.getId());
 			
 			File pdfFile = FileHelper.getFileBySuffix(PDF, tmpPath);
 			String childResource = createChildResource(FILE, mainResource);
