@@ -117,7 +117,7 @@ public class ResourceClient {
 		doiNode.put("doi", doiValue);
 		
 		ObjectNode publisherVersionNode = mapper.createObjectNode();
-		publisherVersionNode.put("article.publisherVersion.@id", "https://doi.org/" + doiValue);
+		publisherVersionNode.put("publisherVersion.@id", "https://doi.org/" + doiValue);
 		
 		ObjectNode term1Node = mapper.createObjectNode();
 		term1Node.set("term", doiNode);
@@ -137,16 +137,13 @@ public class ResourceClient {
 		
 		ObjectNode rootNode = mapper.createObjectNode();
 		rootNode.set("query", queryNode);
-		
-		log.info("ES-Node: {}", rootNode.toString());
-		log.info("URL: {}", server.getElasticsearchURL() );
 
-		ObjectNode node = webClient.post()
+		JsonNode node = webClient.post()
 								 .uri(server.getElasticsearchURL())
 								 .contentType(MediaType.APPLICATION_JSON)
 								 .bodyValue(rootNode)
 								 .retrieve()
-				                 .bodyToMono(ObjectNode.class)   
+				                 .bodyToMono(JsonNode.class)   
 				                 .block();
 
 		return node.at("/hits/total").asInt() > 0;

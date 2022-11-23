@@ -19,7 +19,6 @@ public class ServerProperties {
 	
 	private String apiUser;
 	private String apiPassword;
-    
 	private String baseURL;
 	private String frlURL;
 	private String elasticsearchURL;
