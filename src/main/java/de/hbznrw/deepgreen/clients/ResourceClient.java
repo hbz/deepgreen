@@ -208,7 +208,7 @@ public class ResourceClient {
 			         .toBodilessEntity()
 			         .block();
 			
-			FileHelper.deleteFile(xmlFile.getAbsolutePath());
+			FileHelper.moveFileToPath(xmlFile, prop.getXmlFilesPath());
 		}
 		else
 			log.error("File does not exist");
@@ -246,19 +246,21 @@ public class ResourceClient {
 	public void sendToFRL(Metadata metaData, Embargo embargo, Notification notification ,String tmpPath) {
 		String doi = metaData.getDoi();
 		boolean doiExists = doiExists(doi);	
+		
+		File xmlFile = FileHelper.getFileBySuffix(XML, tmpPath);
+		File pdfFile = FileHelper.getFileBySuffix(PDF, tmpPath);
 
 		if(doiExists) {
 			log.info("Resource with doi {} already exists, no upload to FRL", doi);
-			FileHelper.deleteDirContent(tmpPath);
+			xmlFile.delete();
+			pdfFile.delete();
 			return;
 		}
 		
 		if(!doiExists) {		
-			File xmlFile = FileHelper.getFileBySuffix(XML, tmpPath);
 			String mainResource = createResource(ARTICLE);
 			sendXmlToResource(xmlFile, mainResource, embargo.getDuration(), notification.getId());
 			
-			File pdfFile = FileHelper.getFileBySuffix(PDF, tmpPath);
 			String childResource = createChildResource(FILE, mainResource);
 			sendPdfToResource(pdfFile, childResource);
 		}

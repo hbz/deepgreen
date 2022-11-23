@@ -18,6 +18,7 @@ import lombok.Data;
 public class DeepgreenProperties {
 	
 	private String zipFilePath;
+	private String xmlFilesPath;
 	private String tmpDirPath;
 	private String apiURL;
 	private String notificationURL;
