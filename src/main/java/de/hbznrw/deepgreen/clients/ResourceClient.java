@@ -139,13 +139,14 @@ public class ResourceClient {
 		rootNode.set("query", queryNode);
 		
 		log.info("ES-Node: {}", rootNode.toString());
+		log.info("URL: {}", server.getElasticsearchURL() );
 
-		JsonNode node = webClient.post()
+		ObjectNode node = webClient.post()
 								 .uri(server.getElasticsearchURL())
 								 .contentType(MediaType.APPLICATION_JSON)
 								 .bodyValue(rootNode)
 								 .retrieve()
-				                 .bodyToMono(JsonNode.class)   
+				                 .bodyToMono(ObjectNode.class)   
 				                 .block();
 
 		return node.at("/hits/total").asInt() > 0;
