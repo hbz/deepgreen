@@ -31,6 +31,12 @@
 			<optional>true</optional>
 		</dependency>
 		
+		<!-- for sending emails -->
+		<dependency>
+      		<groupId>org.springframework.boot</groupId>
+      		<artifactId>spring-boot-starter-mail</artifactId>
+    	</dependency>
+		
 		<!-- for mysql connection -->
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
