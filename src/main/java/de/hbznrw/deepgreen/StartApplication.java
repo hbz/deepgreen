@@ -1,5 +1,6 @@
 package de.hbznrw.deepgreen;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +10,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import de.hbznrw.deepgreen.clients.ResourceClient;
-import de.hbznrw.deepgreen.entities.FuturEmbargo;
-import de.hbznrw.deepgreen.helpers.DateHelper;
-import de.hbznrw.deepgreen.helpers.ZipHelper;
+import de.hbznrw.deepgreen.dbentities.FuturEmbargo;
+import de.hbznrw.deepgreen.dbrepositories.FuturEmbargoRepository;
 import de.hbznrw.deepgreen.models.ArticleData;
 import de.hbznrw.deepgreen.models.Embargo;
 import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
-import de.hbznrw.deepgreen.repositories.FuturEmbargoRepository;
-
+import de.hbznrw.deepgreen.service.WebClientService;
+import de.hbznrw.deepgreen.utils.DateUtil;
+import de.hbznrw.deepgreen.utils.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -54,10 +54,10 @@ public class StartApplication implements CommandLineRunner{
 	
 	/* Injecting objects */
 	@Autowired
-	private DateHelper dateHelper;
+	private DateUtil dateUtil;
 	
 	@Autowired
-	private ResourceClient client;
+	private WebClientService webClient;
 	
 	@Autowired
 	private FuturEmbargoRepository repo;
@@ -69,7 +69,7 @@ public class StartApplication implements CommandLineRunner{
 		if(args.length > 0) {
 			String date = args[0];
 			
-			if(!dateHelper.isValidFormat(date))
+			if(!dateUtil.isValidFormat(date))
 				System.exit(1);
 
 			int pageSize = defaultPageSize;
@@ -85,7 +85,7 @@ public class StartApplication implements CommandLineRunner{
 				}
 			}
 
-			ArticleData artData = client.getNotifications(date, pageSize, null);
+			ArticleData artData = webClient.getNotifications(date, pageSize, null);
 			int numOfRessources = artData.getTotal();
 			int numberOfPages = artData.calcNumOfPages(pageSize);
 			
@@ -93,18 +93,18 @@ public class StartApplication implements CommandLineRunner{
 				/* Step 1: Read database for exceeded embargodates */
 				repo.findAll().forEach( entity -> {
 					
-					Notification notification = client.getNotification(entity.getNotificationId());
+					Notification notification = webClient.getNotification(entity.getNotificationId());
 					Metadata metaData = notification.getMetadata();
 					Embargo embargo = notification.getEmbargo();
 					
-					if(!dateHelper.isDateExceeded(entity.getDate(), embargo.getDuration())) {
+					if(!dateUtil.isDateExceeded(entity.getDate(), embargo.getDuration())) {
 						String zipUrl = notification.getZipFileUrl();
 						
-						ZipHelper.getZipFromURL(zipUrl, apiKey, zipFilePath);
-						ZipHelper.extractZip(zipFilePath, tmpDirPath);						
+						ZipUtil.copyURLToZip(zipUrl, apiKey, Paths.get(zipFilePath));
+						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
 			
 						// if doi does not exist, send xml and pdf to frl
-						client.sendToFRL(metaData, embargo, notification, tmpDirPath);
+						webClient.sendToFRL(metaData, embargo, notification, tmpDirPath);
 						
 						repo.deleteById(entity.getNotificationId());
 					}
@@ -114,7 +114,7 @@ public class StartApplication implements CommandLineRunner{
 				/* Step 2: Read API of deepgreen */
 				for(int page = 1; page <= numberOfPages; page++) {
 					 
-					ArticleData data = client.getNotifications(date, pageSize, page);
+					ArticleData data = webClient.getNotifications(date, pageSize, page);
 					List<Notification> notificationList = data.getNotifications();
 					
 					notificationList.stream().forEach( notification -> {
@@ -123,11 +123,11 @@ public class StartApplication implements CommandLineRunner{
 						Embargo embargo = notification.getEmbargo();
 						String zipUrl = notification.getZipFileUrl();
 						
-						ZipHelper.getZipFromURL(zipUrl, apiKey, zipFilePath);
-						ZipHelper.extractZip(zipFilePath, tmpDirPath);						
+						ZipUtil.copyURLToZip(zipUrl, apiKey, Paths.get(zipFilePath));
+						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
 						
 						// check if embargodate exceeded
-						if(dateHelper.isDateExceeded(metaData.getDate(), embargo.getDuration()) && 
+						if(dateUtil.isDateExceeded(metaData.getDate(), embargo.getDuration()) && 
 						   !repo.existsById(notification.getId())) {
 							log.info("EmbargoDate of notification {} exceeded, write to database", notification.getId());
 							FuturEmbargo futurEmbargo = new FuturEmbargo();
@@ -138,7 +138,7 @@ public class StartApplication implements CommandLineRunner{
 						}
 						
 						// if doi does not exist, send xml and pdf to frl
-						client.sendToFRL(metaData, embargo, notification, tmpDirPath);
+						webClient.sendToFRL(metaData, embargo, notification, tmpDirPath);
 					});
 				}
 				/* Read API of deepgreen END */	
