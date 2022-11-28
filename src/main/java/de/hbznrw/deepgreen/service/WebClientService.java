@@ -5,7 +5,6 @@ import java.io.File;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -44,9 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 public class WebClientService {
-	
-	@Value("${spring.mail.to}")
-	String emailTo;
 
 	@Autowired
 	private WebClient webClient;
@@ -65,9 +61,6 @@ public class WebClientService {
 
 	@Autowired
 	private XmlUtil xmlHelper;
-	
-	@Autowired
-	private EmailSenderService mailService;
 	
 	/**
 	 * 
@@ -258,10 +251,6 @@ public class WebClientService {
 
 		if (!xmlHelper.hasTagAttribute(xmlFile, "contrib", "contrib-type", "author")) {
 			log.info("Resource with doi {} has no authors, no upload", doi);
-			// send email to zbmed
-			String message = String.format("In der Deepgreen Ressource mit doi %s, fehlen die Autoren", doi);
-			String subject = "Deepgreen Ressource: Autoren fehlen!";
-			mailService.sendEmail(emailTo, message, subject);
 			xmlFile.delete();
 			pdfFile.delete();
 			return;
