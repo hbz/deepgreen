@@ -16,6 +16,8 @@ import de.hbznrw.deepgreen.models.ArticleData;
 import de.hbznrw.deepgreen.models.Embargo;
 import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
+import de.hbznrw.deepgreen.properties.DeepgreenProperties;
+import de.hbznrw.deepgreen.service.PublissoService;
 import de.hbznrw.deepgreen.service.WebClientService;
 import de.hbznrw.deepgreen.utils.DateUtil;
 import de.hbznrw.deepgreen.utils.ZipUtil;
@@ -43,21 +45,18 @@ public class StartApplication implements CommandLineRunner{
 	@Value("100")
 	private Integer maxPageSize;
 	
-	@Value("${deepgreen.apiKey}")
-	private String apiKey;
-	
-	@Value("${deepgreen.tmpDirPath}")
-	private String tmpDirPath;
-	
-	@Value("${deepgreen.zipFilePath}")
-	private String zipFilePath;
-	
 	/* Injecting objects */
+	@Autowired
+	private DeepgreenProperties prop;
+	
 	@Autowired
 	private DateUtil dateUtil;
 	
 	@Autowired
 	private WebClientService webClient;
+	
+	@Autowired
+	private PublissoService publisso;
 	
 	@Autowired
 	private FuturEmbargoRepository repo;
@@ -96,15 +95,16 @@ public class StartApplication implements CommandLineRunner{
 					Notification notification = webClient.getNotification(entity.getNotificationId());
 					Metadata metaData = notification.getMetadata();
 					Embargo embargo = notification.getEmbargo();
+					List<Notification.Link> links = notification.getLinks();
 					
 					if(!dateUtil.isDateExceeded(entity.getDate(), embargo.getDuration())) {
-						String zipUrl = notification.getZipFileUrl();
+						String zipUrl = links.get(0).getUrl().toString();
 						
-						ZipUtil.copyURLToZip(zipUrl, apiKey, Paths.get(zipFilePath));
-						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
+						ZipUtil.copyURLTo(zipUrl, prop.getApiKey(), Paths.get(prop.getZipFilePath()));
+						ZipUtil.extract(prop.getZipFilePath(), prop.getTmpDirPath());						
 			
-						// if doi does not exist, send xml and pdf to frl
-						webClient.sendToFRL(metaData, embargo, notification, tmpDirPath);
+						// if doi does not exist, send xml and pdf to publisso
+						publisso.upload(metaData, embargo, notification, prop.getTmpDirPath());
 						
 						repo.deleteById(entity.getNotificationId());
 					}
@@ -121,10 +121,11 @@ public class StartApplication implements CommandLineRunner{
 
 						Metadata metaData = notification.getMetadata();
 						Embargo embargo = notification.getEmbargo();
-						String zipUrl = notification.getZipFileUrl();
+						List<Notification.Link> links = notification.getLinks();
+						String zipUrl = links.get(0).getUrl().toString();
 						
-						ZipUtil.copyURLToZip(zipUrl, apiKey, Paths.get(zipFilePath));
-						ZipUtil.extractZip(zipFilePath, tmpDirPath);						
+						ZipUtil.copyURLTo(zipUrl, prop.getApiKey(), Paths.get(prop.getZipFilePath()));
+						ZipUtil.extract(prop.getZipFilePath(), prop.getTmpDirPath());						
 						
 						// check if embargodate exceeded
 						if(dateUtil.isDateExceeded(metaData.getDate(), embargo.getDuration()) && 
@@ -137,8 +138,8 @@ public class StartApplication implements CommandLineRunner{
 							return;
 						}
 						
-						// if doi does not exist, send xml and pdf to frl
-						webClient.sendToFRL(metaData, embargo, notification, tmpDirPath);
+						// if doi does not exist, send xml and pdf to publisso
+						publisso.upload(metaData, embargo, notification, prop.getTmpDirPath());
 					});
 				}
 				/* Read API of deepgreen END */	

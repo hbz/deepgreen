@@ -16,15 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import static de.hbznrw.deepgreen.constants.ContentType.ARTICLE;
-import static de.hbznrw.deepgreen.constants.ContentType.FILE;
-import static de.hbznrw.deepgreen.constants.ContentType.PDF;
-import static de.hbznrw.deepgreen.constants.ContentType.XML;
 import static de.hbznrw.deepgreen.constants.QueryParam.*;
 
 import de.hbznrw.deepgreen.models.ArticleData;
-import de.hbznrw.deepgreen.models.Embargo;
-import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
 import de.hbznrw.deepgreen.models.Resource;
 import de.hbznrw.deepgreen.properties.DeepgreenProperties;
@@ -60,7 +54,7 @@ public class WebClientService {
 	private Resource attr;
 
 	@Autowired
-	private XmlUtil xmlHelper;
+	private XmlUtil xmlUtil;
 	
 	/**
 	 * 
@@ -196,7 +190,7 @@ public class WebClientService {
 	 * @param embargoDuration value as month of the embargo duration
 	 */
 	public void sendXmlToResource(File xmlFile, String nameOfRessource, int embargoDuration, String deepgreenId) {
-		File clearedXmlFile = xmlHelper.removeDoctypeFromXmlFile(xmlFile);
+		File clearedXmlFile = xmlUtil.removeDoctypeFromXmlFile(xmlFile);
 		
 		if(clearedXmlFile != null) {
 			webClient.post()
@@ -234,42 +228,5 @@ public class WebClientService {
 		
 		FileUtil.delete(pdf.getAbsolutePath());
 	}
-	
-	/**
-	 * Sends the pdf and the xml file to the (child-)ressource if the ressource 
-	 * with doi does not exist yet
-	 * 
-	 * @param metaData the metadata values from the respective notification
-	 * @param embargo  the embargo values from the respective notification
-	 * @param tmpPath  the path where the files are
-	 */
-	public void sendToFRL(Metadata metaData, Embargo embargo, Notification notification ,String tmpPath) {
-		String doi = metaData.getDoi();
-		
-		File xmlFile = FileUtil.getFileBySuffix(XML, tmpPath);
-		File pdfFile = FileUtil.getFileBySuffix(PDF, tmpPath);
-
-		if (!xmlHelper.hasTagAttribute(xmlFile, "contrib", "contrib-type", "author")) {
-			log.info("Resource with doi {} has no authors, no upload", doi);
-			xmlFile.delete();
-			pdfFile.delete();
-			return;
-		}
-		
-		if(doiExists(doi)) {
-			log.info("Resource with doi {} already exists, no upload", doi);
-			xmlFile.delete();
-			pdfFile.delete();
-			return;
-		}
-			
-		String mainResource = createResource(ARTICLE);
-		sendXmlToResource(xmlFile, mainResource, embargo.getDuration(), notification.getId());
-		
-		String childResource = createChildResource(FILE, mainResource);
-		sendPdfToResource(pdfFile, childResource);
-
-	}
-	
 	
 }
