@@ -67,7 +67,7 @@ public class FileUtil {
 	
 	public static void moveFileToPath(File file, String path) {
 		try {
-			FileUtils.moveFileToDirectory(file, new File(path), true);
+			FileUtils.moveFileToDirectory(file, new File(path), false);
 		} catch (IOException e) {
 			log.error("Error occurred moving file to specific path");
 		}
