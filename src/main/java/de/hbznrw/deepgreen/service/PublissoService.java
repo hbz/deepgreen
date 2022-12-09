@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PublissoService {
 	
 	@Value("${spring.mail.to}")
-	String emailTo;
+	private String emailTo;
 	
 	@Autowired
 	private XmlUtil xmlUtil;
@@ -32,7 +32,7 @@ public class PublissoService {
 	private EmailSenderService mailService;
 	
 	@Autowired
-	WebClientService webClient;
+	private WebClientService webClient;
 	
 	/**
 	 * Uploads the pdf and the xml file to the (child-)ressource if the ressource 
