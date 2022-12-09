@@ -29,11 +29,4 @@ public class Notification {
 		private String packaging;
 	}
 	
-	/**
-	 * @return  the first url of the links as string
-	 */
-	public String getZipFileUrl() {
-		return this.getLinks().get(0).getUrl().toString();
-	} 
-	
 }

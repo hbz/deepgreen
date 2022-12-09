@@ -33,7 +33,7 @@ public class ZipUtil {
 	 * @throws MalformedURLException if the URL has no valid format
 	 * @throws IOException 	if an error occurs writing to the directory
 	 */
-	public static void copyURLToZip(String source, String apiKey, Path destination) {
+	public static void copyURLTo(String source, String apiKey, Path destination) {
 		try {
 			if(!Files.exists(destination))
 				Files.createDirectories(destination);
@@ -58,7 +58,7 @@ public class ZipUtil {
 	 * @throws ZipException if an error occurs extracting the file
 	 * @throws IOException 	if an error occurs reading/writing zip file
 	 */
-	public static void extractZip(String source, String destination) {
+	public static void extract(String source, String destination) {
 		
 		try(ZipFile zip = new ZipFile(source)) {
 			zip.extractAll(destination);
@@ -70,6 +70,5 @@ public class ZipUtil {
 			ioEx.printStackTrace();
 		}
 	}
-
 
 }
