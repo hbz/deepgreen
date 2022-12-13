@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +67,7 @@ public class FileUtil {
 	
 	public static void moveFileToPath(File file, String path) {
 		try {
-			FileUtils.moveFileToDirectory(file, new File(path), false);
+			Files.copy(file.toPath(), Paths.get(path).resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			log.error("Error occurred moving file to specific path");
 		}

@@ -92,7 +92,6 @@ public class XmlUtil {
 	}
 	
 	public boolean hasTagAttribute(File xml, String tag, String attribKey, String attribValue) {
-		// <contrib contrib-type="author">
 		Document document = createDocument(xml);
 		if(document != null) {
 			NodeList nodeList = document.getElementsByTagName(tag);

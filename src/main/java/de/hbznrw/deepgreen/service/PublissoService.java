@@ -49,7 +49,7 @@ public class PublissoService {
 		File pdfFile = FileUtil.getFileBySuffix(PDF, tmpPath);
 
 		if (!xmlUtil.hasTagAttribute(xmlFile, "contrib", "contrib-type", "author")) {
-			log.info("Resource with doi {} has no authors, no upload", doi);
+			log.info("Resource {} has no authors, no upload", doi);
 			
 			// send email to zbmed
 			String subject = mailService.subjectNoAuthors();
@@ -62,7 +62,8 @@ public class PublissoService {
 		}
 		
 		if(webClient.doiExists(doi)) {
-			log.info("Resource with doi {} already exists, no upload", doi);
+			log.info("Resource {} already exists, no upload", doi);
+			
 			xmlFile.delete();
 			pdfFile.delete();
 			return;
