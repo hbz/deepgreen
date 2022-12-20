@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import de.hbznrw.deepgreen.models.Embargo;
 import de.hbznrw.deepgreen.models.Metadata;
 import de.hbznrw.deepgreen.models.Notification;
+import de.hbznrw.deepgreen.properties.DeepgreenProperties;
 import de.hbznrw.deepgreen.utils.FileUtil;
 import de.hbznrw.deepgreen.utils.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class PublissoService {
 	@Autowired
 	private WebClientService webClient;
 	
+	@Autowired
+	private DeepgreenProperties prop;
+	
 	/**
 	 * Uploads the pdf and the xml file to the (child-)ressource if the ressource 
 	 * with doi does not exist yet
@@ -44,7 +48,7 @@ public class PublissoService {
 	 */
 	public void upload(Metadata metaData, Embargo embargo, Notification notification , String tmpPath) {
 		String doi = metaData.getDoi();
-		
+
 		File xmlFile = FileUtil.getFileBySuffix(XML, tmpPath);
 		File pdfFile = FileUtil.getFileBySuffix(PDF, tmpPath);
 
@@ -74,6 +78,9 @@ public class PublissoService {
 		
 		String childResource = webClient.createChildResource(FILE, mainResource);
 		webClient.sendPdfToResource(pdfFile, childResource);
+		
+		FileUtil.moveFileToPath(xmlFile, prop.getXmlFilesPath());
+		pdfFile.delete();
 
 	}
 

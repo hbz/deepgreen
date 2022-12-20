@@ -126,7 +126,7 @@ public class StartApplication implements CommandLineRunner{
 						
 						ZipUtil.copyURLTo(zipUrl, prop.getApiKey(), Paths.get(prop.getZipFilePath()));
 						ZipUtil.extract(prop.getZipFilePath(), prop.getTmpDirPath());						
-						
+
 						// check if embargodate exceeded
 						if(dateUtil.isDateExceeded(metaData.getDate(), embargo.getDuration()) && 
 						   !repo.existsById(notification.getId())) {
@@ -137,7 +137,7 @@ public class StartApplication implements CommandLineRunner{
 							repo.save(futurEmbargo);
 							return;
 						}
-						
+
 						// if doi does not exist, send xml and pdf to publisso
 						publisso.upload(metaData, embargo, notification, prop.getTmpDirPath());
 					});

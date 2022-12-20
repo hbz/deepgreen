@@ -104,9 +104,11 @@ public class WebClientService {
     	
 		// *** Query Requestbody ***
 		// "query":{"bool": {"should": [
-		// {"term": {"@id": "frl:6435877"}},
+		// {"term": {"doi": "10.1024/0300-9831/a000643"}},
 		// {"term": {"publisherVersion.@id": "https://doi.org/10.1024/0300-9831/a000643"}}]}}}
-			
+		
+		log.info("doiValue: {}", doiValue);
+		
 		ObjectNode doiNode = mapper.createObjectNode();
 		doiNode.put("doi", doiValue);
 		
@@ -131,6 +133,8 @@ public class WebClientService {
 		
 		ObjectNode rootNode = mapper.createObjectNode();
 		rootNode.set("query", queryNode);
+		
+		log.info("rootNode: {}", rootNode.toPrettyString());
 
 		JsonNode node = webClient.post()
 								 .uri(server.getElasticsearchURL())
@@ -201,8 +205,6 @@ public class WebClientService {
 			         .retrieve()
 			         .toBodilessEntity()
 			         .block();
-			
-			FileUtil.moveFileToPath(xmlFile, prop.getXmlFilesPath());
 		}
 		else
 			log.error("File does not exist");

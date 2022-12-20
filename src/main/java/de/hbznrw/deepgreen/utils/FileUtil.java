@@ -68,6 +68,7 @@ public class FileUtil {
 	public static void moveFileToPath(File file, String path) {
 		try {
 			Files.copy(file.toPath(), Paths.get(path).resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
+			file.delete();
 		} catch (IOException e) {
 			log.error("Error occurred moving file to specific path");
 		}
