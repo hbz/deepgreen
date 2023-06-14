@@ -13,6 +13,10 @@ deepgreen.tmpDirPath=/tmp/deepgreen
 deepgreen.zipFilePath=/tmp/deepgreen/zip
 deepgreen.xmlFilesPath=/opt/deepgreen/xml
 
+# DATABUFFERLIMIT (default 256 KB)
+# -----------------------------------------------------------------------------
+spring.codec.max-in-memory-size:{KB_or_MB}
+
 # DATABASE ACCESS
 # -----------------------------------------------------------------------------
 spring.jpa.hibernate.ddl-auto=update
@@ -22,7 +26,7 @@ spring.datasource.password={YOUR_DB_PASSWORD}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # SEND EMAIL PROPERTIES
-# =============================================================================
+# -----------------------------------------------------------------------------
 spring.mail.host={YOUR_EMAIL_SERVER}
 spring.mail.port={YOUR_EMAIL_PORT}
 spring.mail.username={YOUR_EMAIL_USERNAME}

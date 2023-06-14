@@ -2,28 +2,19 @@ package de.hbznrw.deepgreen.service;
 
 
 import java.io.File;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import static de.hbznrw.deepgreen.constants.QueryParam.*;
 
-import de.hbznrw.deepgreen.models.ArticleData;
 import de.hbznrw.deepgreen.models.Notification;
 import de.hbznrw.deepgreen.models.Resource;
 import de.hbznrw.deepgreen.properties.DeepgreenProperties;
 import de.hbznrw.deepgreen.properties.ServerProperties;
-import de.hbznrw.deepgreen.utils.FileUtil;
 import de.hbznrw.deepgreen.utils.XmlUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -56,25 +47,6 @@ public class WebClientService {
 	@Autowired
 	private XmlUtil xmlUtil;
 	
-	/**
-	 * 
-	 * Gets all resources from the deepgreen api from the specified date in json 
-	 * format and maps these to a java object
-	 * 
-	 * @param arg first argument from console as date format yyyy-mm-dd
-	 * @return Mapped Java Class 
-	 */
-	public ArticleData getNotifications(String date, Integer pageSize, Integer page) {
-		return webClient.get()
-						.uri(prop.getApiURL(), uriBuilder -> uriBuilder
-								.queryParam(SINCE, date)
-								.queryParamIfPresent(PAGESIZE, Optional.ofNullable(pageSize))
-								.queryParamIfPresent(PAGE, Optional.ofNullable(page))
-								.build() )
-						.retrieve()
-						.bodyToMono(ArticleData.class)
-						.block();
-	}
 	
 	/**
 	 * 
@@ -95,55 +67,6 @@ public class WebClientService {
 	}
 	
 	/**
-	 * Tests whether the publisherVersion.@id (doi) already exists by calling the elasticsearch api.
-	 * 
-	 * @param doiValue
-	 * @return true if the doi already exists, false otherwise
-	 */
-	public boolean doiExists(String doiValue) {
-    	
-		// *** Query Requestbody ***
-		// "query":{"bool": {"should": [
-		// {"term": {"doi": "10.1024/0300-9831/a000643"}},
-		// {"term": {"publisherVersion.@id": "https://doi.org/10.1024/0300-9831/a000643"}}]}}}
-		
-		ObjectNode doiNode = mapper.createObjectNode();
-		doiNode.put("doi", doiValue);
-		
-		ObjectNode publisherVersionNode = mapper.createObjectNode();
-		publisherVersionNode.put("publisherVersion.@id", "https://doi.org/" + doiValue);
-		
-		ObjectNode term1Node = mapper.createObjectNode();
-		term1Node.set("term", doiNode);
-		
-		ObjectNode term2Node = mapper.createObjectNode();
-		term2Node.set("term", publisherVersionNode);
-		
-		ArrayNode shouldArray = mapper.createArrayNode();
-		shouldArray.add(term1Node);
-		shouldArray.add(term2Node);
-		
-		ObjectNode boolNode = mapper.createObjectNode();
-		boolNode.set("should", shouldArray);
-		
-		ObjectNode queryNode = mapper.createObjectNode();
-		queryNode.set("bool", boolNode);
-		
-		ObjectNode rootNode = mapper.createObjectNode();
-		rootNode.set("query", queryNode);
-
-		JsonNode node = webClient.post()
-								 .uri(server.getElasticsearchURL())
-								 .contentType(MediaType.APPLICATION_JSON)
-								 .bodyValue(rootNode)
-								 .retrieve()
-				                 .bodyToMono(JsonNode.class)   
-				                 .block();
-
-		return node.at("/hits/total").asInt() > 0;
-	}
-	
-	/**
 	 * 
 	 * Creates a new sub Resource under the specified parent resource
 	 *  
@@ -151,33 +74,17 @@ public class WebClientService {
 	 * @param parentPid the identifier of the parent resource
 	 * @return name of the new created child Resource
 	 */
-	public String createChildResource(String type, String parentPid) {
+	public void updateResource(String type, String frlId) {
 		attr.setContentType(type);
-		attr.setParentPid(parentPid);
 
-		JsonNode node = webClient.post() 
-								 .uri(server.getFrlURL())
-								 .contentType(MediaType.APPLICATION_JSON)
-								 .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
-								 .bodyValue(attr)
-								 .retrieve()
-				                 .bodyToMono(JsonNode.class)   
-				                 .block();
-				                 
-		log.info(node.get("text").asText());
-		String textResponse = node.get("text").asText(); 
-		return textResponse.substring(0, textResponse.indexOf(" "));
-	}
-	
-	/**
-	 * 
-	 * Creates a new Resource
-	 * 
-	 * @param type the type of the Resource
-	 * @return name of the new created Ressource
-	 */
-	public String createResource(String type) {
-		return createChildResource(type, null);
+		webClient.post() 
+				 .uri(server.getResourceURL() + "/" + frlId)
+				 .contentType(MediaType.APPLICATION_JSON)
+				 .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
+				 .bodyValue(attr)
+				 .retrieve()
+                 .toBodilessEntity()  
+                 .block();
 	}
 	
 	/**
@@ -204,27 +111,6 @@ public class WebClientService {
 		}
 		else
 			log.error("File does not exist");
-	}
-	
-	/**
-	 * Sends the pdf file to the specified frl resource
-	 * 
-	 * @param pdf the pdf file that has to be send to frl
-	 * @param nameOfResource name of the frl Resource
-	 */
-	public void sendPdfToResource(File pdf, String nameOfResource) {
-		MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-		bodyBuilder.part("data", new FileSystemResource(pdf));
-		bodyBuilder.part("type", MediaType.APPLICATION_PDF);
-		webClient.put()
-		         .uri(String.format(server.getResourceURL() + "/%s/data", nameOfResource))
-		         .headers(h -> h.setBasicAuth(server.getApiUser(), server.getApiPassword()))
-		         .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
-		         .retrieve()
-		         .toBodilessEntity()
-		         .block();
-		
-		FileUtil.delete(pdf.getAbsolutePath());
 	}
 	
 }

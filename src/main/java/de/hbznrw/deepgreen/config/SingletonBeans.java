@@ -7,6 +7,9 @@ import javax.xml.transform.TransformerFactory;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Configuration
-public class SingletonBeans {
+public class SingletonBeans implements WebFluxConfigurer {
 	
 	/**
 	 * 
@@ -29,10 +32,15 @@ public class SingletonBeans {
     public SimpleDateFormat getSimpleDateFormat(){
 		return new SimpleDateFormat("yyyy-MM-dd");
     }
+	
+	@Override
+    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+        configurer.defaultCodecs().maxInMemorySize(5000 * 1024);
+    }
 
 	@Bean
 	public WebClient getWebClientBuilder() {
-		return WebClient.builder().build();
+		return WebClient.builder().exchangeStrategies(ExchangeStrategies.builder().codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(5000 * 1024)).build()).build();
 	}
 	
 	@Bean
